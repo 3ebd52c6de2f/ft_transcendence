@@ -48,7 +48,7 @@ switch ($requestMethod) {
 function createUser($database, $body): void {
     if (!isset($body['username'], $body['email'], $body['password'])) {
         http_response_code(400);
-        echo json_encode(["error" => "Bad request. Missing fields."]);
+        echo json_encode(['error' => 'Bad request. Missing fields.']);
         return;
     }
     
@@ -57,13 +57,13 @@ function createUser($database, $body): void {
     $password = password_hash($body['password'], PASSWORD_DEFAULT);
     
     $checkQuery = $database->prepare("SELECT id FROM users WHERE username = :username OR email = :email");
-    $checkQuery->bindValue(":username", $username);
-    $checkQuery->bindValue(":email", $email);
+    $checkQuery->bindValue(':username', $username);
+    $checkQuery->bindValue(':email', $email);
     $result = $checkQuery->execute();
 
     if ($result->fetchArray(SQLITE3_ASSOC)) {
         http_response_code(409); // Conflictu
-        echo json_encode(["error" => "El nombre de usuario o el correo ya están en uso."]);
+        echo json_encode(['error' => 'username/email used in other account']);
         return;
     }
 
@@ -71,19 +71,19 @@ function createUser($database, $body): void {
         $secureQuest = $database->prepare("INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
         if (!$secureQuest) {
             http_response_code(500);
-            echo json_encode(["error" => "Prepare failed", "details" => $database->lastErrorMsg()]);
+            echo json_encode(['error' => 'Prepare failed', 'details' => $database->lastErrorMsg()]);
             return;
         }
-        $secureQuest->bindValue(":username", $username);
-        $secureQuest->bindValue(":email", $email);
-        $secureQuest->bindValue(":password_hash", $password);
+        $secureQuest->bindValue(':username', $username);
+        $secureQuest->bindValue(':email', $email);
+        $secureQuest->bindValue(':password_hash', $password);
         $secureQuest->execute();
-        echo json_encode(["success" => true, "message" => "User created."]);
+        echo json_encode(['success' => true, 'message' => 'User created.']);
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode([
-            "error" => "User can't be created...",
-            "details" => $e->getMessage()
+            'error' => "User can't be created...",
+            'details' => $e->getMessage()
         ]);
     }
 }
@@ -106,12 +106,12 @@ en la base de datos pero solo dara por ahora el id, el nombre
 y la fecha en la que se ha creado, podria dar mas cosas
 pero creo que sobran atope y seguridat y tal 
 
-se accede por peticion GET a /users sin /(id) */
+se accede por peticion GET a /users sin ?id=(id) */
 
 function getUserDataById($playerId, $database) {
     if (!is_numeric($playerId)) {
         http_response_code(404);
-        echo json_encode(["error" => "invalid Id"]);
+        echo json_encode(['error' => 'invalid Id']);
         return ;
     }
     $secureQuest = $database->prepare("SELECT id, username FROM users WHERE id = :id");
@@ -122,12 +122,12 @@ function getUserDataById($playerId, $database) {
         echo json_encode($arrayData);
     } else {
         http_response_code(404);
-        echo json_encode(["error" => "user not found"]);
+        echo json_encode(['error' => 'user not found']);
     }
     return ;
 }
 /* si la funcion de datos de un solo jugador con acceso por id
-quieres usar una peticion de tipo GET a /users/(id) tendras que realizar */
+quieres usar una peticion de tipo GET a /users?id=(id) tendras que realizar */
 
 function editUserData($database, $playerId, $body) {
     // editar la info de un user
@@ -140,30 +140,8 @@ han de estar escritos los datos a modificar con el formato
 */
 
 function deleteUser($database, $body) {
-    echo($body);
-    if (!isset($body['username'], $body['password'])) {
-        http_response_code(400); // bad petition
-        echo json_encode(["error" => "username/password not found"]);
-        return ;
-    }
-    $username = $body['username'];
-    $password = $body['password'];
-    $secureQuest = $database->prepare("SELECT id, password FROM users WHERE username = :username");
-    $secureQuest->bindValue(":username", $username);
-    $userData = $secureQuest->execute();
-    $userDataArray = $userData->fetchArray(SQLITE3_ASSOC);
-    if (!$userDataArray) {
-        http_response_code(404);
-        echo json_encode(["error" => "user not found"]);
-        return ;
-    }
-    if (!password_verify($password, $userData['password'])) {
-        http_response_code(401); // no autorizado
-        echo json_encode(["error" => "invalid password"]);
-        return ;
-    }
     $database->exec("DELETE FROM users WHERE id = {$userData['id']}");
-    echo json_encode(["success" => "", "message" => "user deleted"]);
+    echo json_encode(['success' => "", 'message' => 'user deleted']);
     return ;
 }
 /* funciona haciendo una peticion a /users de tipo DELETE, 
