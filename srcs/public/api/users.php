@@ -1,4 +1,8 @@
 <?php
+//desarrollo
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 require_once '../config/config.php';
@@ -6,17 +10,18 @@ require_once '../config/config.php';
 $database = databaseConnection();
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestUri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
-$id = $requestUri[2] ?? null;
+$id = $_GET['id'] ?? null;
 $body = file_get_contents('php://input');
 $bodyArray = json_decode($body, true);
 // variables de la peticion
+error_log(print_r($id, true));
 
 switch ($requestMethod) {
     case 'POST':
         createUser($database, $bodyArray);
         break ;
     case  'GET':
-        if ($id === null) {
+        if (!$id) {
             getUserList($database);
         }
         else {
@@ -40,34 +45,49 @@ switch ($requestMethod) {
 } 
 // router
 
-function createUser($database, $body) : void {
+function createUser($database, $body): void {
     if (!isset($body['username'], $body['email'], $body['password'])) {
-        http_response_code(400); // bad petition
-        echo json_encode(["error" => "bad request"]);
-        return ;
+        http_response_code(400);
+        echo json_encode(["error" => "Bad request. Missing fields."]);
+        return;
     }
-    // compruebo que esten los campos y si no devuelvo peticion mal formada.
-
+    
     $username = $body['username'];
     $email = $body['email'];
     $password = password_hash($body['password'], PASSWORD_DEFAULT);
-    // password_hash() utiliza bcrypt para hashear la contra
+    
+    $checkQuery = $database->prepare("SELECT id FROM users WHERE username = :username OR email = :email");
+    $checkQuery->bindValue(":username", $username);
+    $checkQuery->bindValue(":email", $email);
+    $result = $checkQuery->execute();
 
-    $secureQuest = $database->prepare("INSERT INTO users (username, email, password) VALUES (:username, :email, :password)");
-    $secureQuest->bindValue(":username", $username);
-    $secureQuest->bindValue(":email", $email);
-    $secureQuest->bindValue(":password", $password);
-    // peticion segura para evitar sqliny, con clave valor
+    if ($result->fetchArray(SQLITE3_ASSOC)) {
+        http_response_code(409); // Conflictu
+        echo json_encode(["error" => "El nombre de usuario o el correo ya están en uso."]);
+        return;
+    }
 
     try {
+        $secureQuest = $database->prepare("INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
+        if (!$secureQuest) {
+            http_response_code(500);
+            echo json_encode(["error" => "Prepare failed", "details" => $database->lastErrorMsg()]);
+            return;
+        }
+        $secureQuest->bindValue(":username", $username);
+        $secureQuest->bindValue(":email", $email);
+        $secureQuest->bindValue(":password_hash", $password);
         $secureQuest->execute();
-        echo json_encode(["success" => true, "message" => "user created"]);
+        echo json_encode(["success" => true, "message" => "User created."]);
     } catch (Exception $e) {
-        http_response_code(500); // internal server error
-        echo json_encode(["error" => "user can't be created...", "details" => $e->getMessage()]);
+        http_response_code(500);
+        echo json_encode([
+            "error" => "User can't be created...",
+            "details" => $e->getMessage()
+        ]);
     }
-    return ;
 }
+
 /* esta funciona haciendo una peticion POST, en la que el body
 ha de tener el formato: "username:(nombre de usuario), email:(email xD),
 password:(contrasenha) :D */
@@ -94,7 +114,7 @@ function getUserDataById($playerId, $database) {
         echo json_encode(["error" => "invalid Id"]);
         return ;
     }
-    $secureQuest = $database->prepare("SELECT id, username, created_at FROM users WHERE id = :id");
+    $secureQuest = $database->prepare("SELECT id, username FROM users WHERE id = :id");
     $secureQuest->bindValue(":id", $playerId, SQLITE3_INTEGER);
     $data = $secureQuest->execute();
     $arrayData = $data->fetchArray(SQLITE3_ASSOC);

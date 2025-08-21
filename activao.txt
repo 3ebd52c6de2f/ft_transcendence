@@ -1,11 +1,11 @@
 // cosas cubiertas //
 
 - GET sin id a users (retorna lista de usuarios)
+- GET con id a users (retorna info del user (por id))
+- POST a users (crea un nuevo usuario)
 
 // cosas por cubrir //
 
-- GET con id a users (retorna info del user (por id))
-- POST a users (crea un nuevo usuario)
 - PATCH a users (edita los datos de un usuario)
 - DELETE a users (borra un usuario)
 - POST a auth/login (logear a alguien)
