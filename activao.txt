@@ -1,0 +1,32 @@
+// cosas cubiertas //
+
+- GET sin id a users (retorna lista de usuarios)
+
+// cosas por cubrir //
+
+- GET con id a users (retorna info del user (por id))
+- POST a users (crea un nuevo usuario)
+- PATCH a users (edita los datos de un usuario)
+- DELETE a users (borra un usuario)
+- POST a auth/login (logear a alguien)
+- POST a auth/logout (desloggear a alguien)
+- POST a friend-request (enviar solicitud de amista)
+- GET a friend-request (comprobar solicitudes de amistad entrantes)
+- PATCH a friend-request (aceptar solicitud)
+- DELETE a friend-request (declinar solicitud)
+- GET a friends (mostrar lista de amigos)
+- DELETE a friends (eliminar un amigo)
+- POST a chat (enviar un mensaje)
+- GET sin id a chat (leer lista de chats)
+- GET con id a chat (leer un mensaje recibido)
+- POST a matches (crear nueva partida)
+- GET con id a matches (ver partidas recientes)
+- PATCH con id a matches (actualizar la informacion de una partida)
+- DELETE con id a matches (cancelar/terminar partida)
+- GET con id a ladderboard (ranking de amigos)
+- GET sin id a ladderboard (ranking global)
+- GET con id a settings (ajustes actuales)
+- PATCH con id a settings (actualizar ajustes)
+- PATCH con id a security (cambiar la contrasenha)
+- POST a media (subir una foto de usuario)
+- GET con id a media (mostrar foto de usuario)

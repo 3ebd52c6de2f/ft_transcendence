@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Probar API REST</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 900px; margin: auto; padding: 1rem; }
+    section { border: 1px solid #ccc; padding: 1rem; margin-bottom: 1rem; }
+    h2 { margin-top: 0; }
+    label { display: block; margin-top: 0.5rem; }
+    input, select, button { margin-top: 0.25rem; padding: 0.3rem; width: 100%; max-width: 300px; }
+    pre { background: #f0f0f0; padding: 1rem; white-space: pre-wrap; word-wrap: break-word; max-height: 300px; overflow-y: auto; }
+    button { cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>Tester de API REST</h1>
+
+  <section id="users-section">
+    <h2>Usuarios</h2>
+    <!-- GET todos -->
+    <button id="get-users">Listar todos los usuarios</button>
+
+    <!-- GET con ID -->
+    <label>ID usuario para obtener datos:</label>
+    <input type="number" id="get-user-id" placeholder="ID usuario" />
+    <button id="get-user">Obtener usuario por ID</button>
+
+    <!-- POST crear -->
+    <h3>Crear usuario</h3>
+    <form id="create-user-form">
+      <input type="text" id="create-username" placeholder="Nombre de usuario" required />
+      <input type="email" id="create-email" placeholder="Correo electrónico" required />
+      <input type="password" id="create-password" placeholder="Contraseña" required />
+      <button type="submit">Crear usuario</button>
+    </form>
+
+    <!-- PATCH editar -->
+    <h3>Editar usuario</h3>
+    <label>ID usuario a editar:</label>
+    <input type="number" id="edit-user-id" placeholder="ID usuario" />
+    <input type="text" id="edit-username" placeholder="Nuevo nombre de usuario (opcional)" />
+    <input type="email" id="edit-email" placeholder="Nuevo email (opcional)" />
+    <input type="password" id="edit-password" placeholder="Nueva contraseña (opcional)" />
+    <button id="edit-user">Editar usuario</button>
+
+    <!-- DELETE eliminar -->
+    <h3>Eliminar usuario</h3>
+    <label>ID usuario a eliminar:</label>
+    <input type="number" id="delete-user-id" placeholder="ID usuario" />
+    <button id="delete-user">Eliminar usuario</button>
+  </section>
+
+  <section id="auth-section">
+    <h2>Autenticación</h2>
+    <form id="login-form">
+      <input type="text" id="login-username" placeholder="Nombre de usuario" required />
+      <input type="password" id="login-password" placeholder="Contraseña" required />
+      <button type="submit">Login</button>
+    </form>
+    <button id="logout-button">Logout</button>
+  </section>
+
+  <section id="friend-request-section">
+    <h2>Solicitudes de amistad</h2>
+    <!-- POST enviar solicitud -->
+    <form id="send-friend-request-form">
+      <input type="number" id="friend-request-sender-id" placeholder="ID remitente" required />
+      <input type="number" id="friend-request-receiver-id" placeholder="ID receptor" required />
+      <button type="submit">Enviar solicitud</button>
+    </form>
+
+    <!-- GET comprobar solicitudes de un usuario -->
+    <label>ID usuario para comprobar solicitudes:</label>
+    <input type="number" id="check-friend-requests-id" placeholder="ID usuario" />
+    <button id="check-friend-requests">Comprobar solicitudes</button>
+
+    <!-- PATCH aceptar solicitud -->
+    <form id="accept-friend-request-form">
+      <input type="number" id="accept-request-id" placeholder="ID solicitud" required />
+      <button type="submit">Aceptar solicitud</button>
+    </form>
+
+    <!-- DELETE declinar solicitud -->
+    <label>ID solicitud para declinar:</label>
+    <input type="number" id="decline-request-id" placeholder="ID solicitud" />
+    <button id="decline-friend-request">Declinar solicitud</button>
+  </section>
+
+  <section id="friends-section">
+    <h2>Amigos</h2>
+    <label>ID usuario para lista de amigos:</label>
+    <input type="number" id="friends-user-id" placeholder="ID usuario" />
+    <button id="get-friends">Mostrar amigos</button>
+
+    <label>ID amigo a eliminar:</label>
+    <input type="number" id="delete-friend-id" placeholder="ID amigo" />
+    <button id="delete-friend">Eliminar amigo</button>
+  </section>
+
+  <section id="chat-section">
+    <h2>Chat</h2>
+    <!-- POST enviar mensaje -->
+    <form id="send-message-form">
+      <input type="number" id="message-sender-id" placeholder="ID remitente" required />
+      <input type="number" id="message-receiver-id" placeholder="ID receptor" required />
+      <textarea id="message-content" placeholder="Contenido del mensaje" required style="width: 300px; height: 80px;"></textarea>
+      <button type="submit">Enviar mensaje</button>
+    </form>
+
+    <!-- GET lista chats -->
+    <button id="get-chat-list">Leer lista de chats</button>
+
+    <!-- GET mensaje con id -->
+    <label>ID mensaje para leer:</label>
+    <input type="number" id="get-message-id" placeholder="ID mensaje" />
+    <button id="get-message">Leer mensaje por ID</button>
+  </section>
+
+  <section id="matches-section">
+    <h2>Partidas</h2>
+    <!-- POST crear partida -->
+    <form id="create-match-form">
+      <input type="number" id="match-creator-id" placeholder="ID creador" required />
+      <input type="number" id="match-opponent-id" placeholder="ID oponente (opcional)" />
+      <input type="text" id="match-status" placeholder="Estado (opcional)" />
+      <textarea id="match-data" placeholder="Datos (opcional)" style="width: 300px; height: 60px;"></textarea>
+      <button type="submit">Crear partida</button>
+    </form>
+
+    <!-- GET partidas recientes con ID -->
+    <label>ID para ver partidas recientes:</label>
+    <input type="number" id="get-match-id" placeholder="ID" />
+    <button id="get-match">Ver partidas recientes</button>
+
+    <!-- PATCH actualizar partida -->
+    <form id="update-match-form">
+      <input type="number" id="update-match-id" placeholder="ID partida" required />
+      <input type="text" id="update-match-status" placeholder="Nuevo estado" />
+      <textarea id="update-match-data" placeholder="Nuevos datos" style="width: 300px; height: 60px;"></textarea>
+      <button type="submit">Actualizar partida</button>
+    </form>
+
+    <!-- DELETE cancelar partida -->
+    <label>ID partida a cancelar:</label>
+    <input type="number" id="delete-match-id" placeholder="ID partida" />
+    <button id="delete-match">Cancelar partida</button>
+  </section>
+
+  <section id="ladder-section">
+    <h2>Ranking (Ladderboard)</h2>
+    <label>ID usuario para ranking amigos:</label>
+    <input type="number" id="ladder-user-id" placeholder="ID usuario" />
+    <button id="get-ladder-user">Ranking de amigos</button>
+
+    <button id="get-ladder-global">Ranking global</button>
+  </section>
+
+  <section id="settings-section">
+    <h2>Configuración</h2>
+    <button id="get-settings">Obtener ajustes actuales</button>
+
+    <form id="update-settings-form">
+      <label>Idioma:</label>
+      <input type="text" id="settings-language" placeholder="Idioma (ej. en)" />
+      <label>Notificaciones (1=activar,0=desactivar):</label>
+      <input type="number" id="settings-notifications" min="0" max="1" />
+      <button type="submit">Actualizar ajustes</button>
+    </form>
+  </section>
+
+  <section id="security-section">
+    <h2>Seguridad</h2>
+    <form id="change-password-form">
+      <input type="number" id="security-user-id" placeholder="ID usuario" required />
+      <input type="password" id="security-new-password" placeholder="Nueva contraseña" required />
+      <button type="submit">Cambiar contraseña</button>
+    </form>
+  </section>
+
+  <section id="media-section">
+    <h2>Multimedia</h2>
+    <form id="upload-avatar-form" enctype="multipart/form-data">
+      <input type="number" id="media-user-id" name="user_id" placeholder="ID usuario" required />
+      <input type="file" id="avatar-file" name="avatar" accept="image/*" required />
+      <button type="submit">Subir avatar</button>
+    </form>
+
+    <label>ID usuario para ver avatar:</label>
+    <input type="number" id="get-avatar-user-id" placeholder="ID usuario" />
+    <button id="get-avatar">Mostrar avatar</button>
+  </section>
+
+  <pre id="response"></pre>
+
+  <script>
+    const responseBox = document.getElementById('response');
+
+    // Función común para mostrar respuesta JSON
+    function showResponse(json) {
+      responseBox.textContent = JSON.stringify(json, null, 2);
+    }
+
+    // ===== Usuarios =====
+
+    // GET all users
+    document.getElementById('get-users').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/users.php');
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // GET user by ID
+    document.getElementById('get-user').addEventListener('click', async () => {
+      const id = document.getElementById('get-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/users.php?id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // POST create user
+    document.getElementById('create-user-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        username: document.getElementById('create-username').value,
+        email: document.getElementById('create-email').value,
+        password: document.getElementById('create-password').value,
+      };
+      try {
+        const res = await fetch('/api/users.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // PATCH edit user
+    document.getElementById('edit-user').addEventListener('click', async () => {
+      const id = document.getElementById('edit-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      const data = {};
+      const username = document.getElementById('edit-username').value;
+      const email = document.getElementById('edit-email').value;
+      const password = document.getElementById('edit-password').value;
+      if (username) data.username = username;
+      if (email) data.email = email;
+      if (password) data.password = password;
+      if (Object.keys(data).length === 0) return alert('Completa al menos un campo para editar');
+      try {
+        const res = await fetch(`/api/users.php?id=${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // DELETE user
+    document.getElementById('delete-user').addEventListener('click', async () => {
+      const id = document.getElementById('delete-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/users.php?id=${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Auth =====
+
+    // Login
+    document.getElementById('login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        username: document.getElementById('login-username').value,
+        password: document.getElementById('login-password').value,
+      };
+      try {
+        const res = await fetch('/api/auth/login.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Logout
+    document.getElementById('logout-button').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/auth/logout.php', { method: 'POST' });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Friend requests =====
+
+    // Enviar solicitud amistad (POST)
+    document.getElementById('send-friend-request-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        sender_id: Number(document.getElementById('friend-request-sender-id').value),
+        receiver_id: Number(document.getElementById('friend-request-receiver-id').value),
+      };
+      try {
+        const res = await fetch('/api/friend-request.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Comprobar solicitudes (GET)
+    document.getElementById('check-friend-requests').addEventListener('click', async () => {
+      const id = document.getElementById('check-friend-requests-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/friend-request.php?user_id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Aceptar solicitud (PATCH)
+    document.getElementById('accept-friend-request-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('accept-request-id').value;
+      try {
+        const res = await fetch(`/api/friend-request.php?id=${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'accepted' }),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Declinar solicitud (DELETE)
+    document.getElementById('decline-friend-request').addEventListener('click', async () => {
+      const id = document.getElementById('decline-request-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/friend-request.php?id=${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Friends =====
+
+    // Mostrar amigos (GET)
+    document.getElementById('get-friends').addEventListener('click', async () => {
+      const id = document.getElementById('friends-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/friends.php?user_id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Eliminar amigo (DELETE)
+    document.getElementById('delete-friend').addEventListener('click', async () => {
+      const id = document.getElementById('delete-friend-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/friends.php?friend_id=${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Chat =====
+
+    // Enviar mensaje (POST)
+    document.getElementById('send-message-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        sender_id: Number(document.getElementById('message-sender-id').value),
+        receiver_id: Number(document.getElementById('message-receiver-id').value),
+        content: document.getElementById('message-content').value,
+      };
+      try {
+        const res = await fetch('/api/chat.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Leer lista chats (GET)
+    document.getElementById('get-chat-list').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/chat.php');
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Leer mensaje por ID (GET)
+    document.getElementById('get-message').addEventListener('click', async () => {
+      const id = document.getElementById('get-message-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/chat.php?id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Matches =====
+
+    // Crear partida (POST)
+    document.getElementById('create-match-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {
+        creator_id: Number(document.getElementById('match-creator-id').value),
+        opponent_id: document.getElementById('match-opponent-id').value ? Number(document.getElementById('match-opponent-id').value) : null,
+        status: document.getElementById('match-status').value || 'pending',
+        data: document.getElementById('match-data').value || '',
+      };
+      try {
+        const res = await fetch('/api/matches.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Ver partidas recientes (GET)
+    document.getElementById('get-match').addEventListener('click', async () => {
+      const id = document.getElementById('get-match-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/matches.php?id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Actualizar partida (PATCH)
+    document.getElementById('update-match-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('update-match-id').value;
+      if (!id) return alert('Ingresa un ID');
+      const data = {
+        status: document.getElementById('update-match-status').value,
+        data: document.getElementById('update-match-data').value,
+      };
+      try {
+        const res = await fetch(`/api/matches.php?id=${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Cancelar partida (DELETE)
+    document.getElementById('delete-match').addEventListener('click', async () => {
+      const id = document.getElementById('delete-match-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/matches.php?id=${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Ladderboard =====
+
+    // Ranking amigos (GET)
+    document.getElementById('get-ladder-user').addEventListener('click', async () => {
+      const id = document.getElementById('ladder-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        const res = await fetch(`/api/ladder.php?id=${id}`);
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Ranking global (GET)
+    document.getElementById('get-ladder-global').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/ladder.php');
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Settings =====
+
+    // Obtener ajustes (GET)
+    document.getElementById('get-settings').addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/settings.php');
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Actualizar ajustes (PATCH)
+    document.getElementById('update-settings-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = {};
+      const lang = document.getElementById('settings-language').value;
+      const notif = document.getElementById('settings-notifications').value;
+      if (lang) data.language = lang;
+      if (notif !== '') data.notifications = Number(notif);
+      if (Object.keys(data).length === 0) return alert('Completa al menos un campo para actualizar');
+      try {
+        const res = await fetch('/api/settings.php', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Security =====
+
+    // Cambiar contraseña (PATCH)
+    document.getElementById('change-password-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const id = document.getElementById('security-user-id').value;
+      const newPass = document.getElementById('security-new-password').value;
+      if (!id || !newPass) return alert('Completa todos los campos');
+      try {
+        const res = await fetch(`/api/security.php?id=${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: newPass }),
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // ===== Multimedia =====
+
+    // Subir avatar (POST multipart/form-data)
+    document.getElementById('upload-avatar-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+      try {
+        const res = await fetch('/api/media.php', {
+          method: 'POST',
+          body: formData,
+        });
+        const json = await res.json();
+        showResponse(json);
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+
+    // Mostrar avatar (GET)
+    document.getElementById('get-avatar').addEventListener('click', async () => {
+      const id = document.getElementById('get-avatar-user-id').value;
+      if (!id) return alert('Ingresa un ID');
+      try {
+        // Suponiendo que la respuesta es una imagen en base64 o URL
+        const res = await fetch(`/api/media.php?id=${id}`);
+        if (!res.ok) throw new Error('No se encontró avatar');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        responseBox.innerHTML = `<img src="${url}" alt="Avatar usuario ${id}" style="max-width: 200px; max-height: 200px;" />`;
+      } catch (err) {
+        showResponse({ error: err.message });
+      }
+    });
+  </script>
+</body>
+</html>
