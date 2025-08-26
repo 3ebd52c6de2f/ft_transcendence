@@ -249,29 +249,34 @@
     });
 
     // PATCH edit user
-    document.getElementById('edit-user').addEventListener('click', async () => {
-      const id = document.getElementById('edit-user-id').value;
-      if (!id) return alert('Ingresa un ID');
-      const data = {};
-      const username = document.getElementById('edit-username').value;
-      const email = document.getElementById('edit-email').value;
-      const password = document.getElementById('edit-password').value;
-      if (username) data.username = username;
-      if (email) data.email = email;
-      if (password) data.password = password;
-      if (Object.keys(data).length === 0) return alert('Completa al menos un campo para editar');
-      try {
-        const res = await fetch(`/api/users.php?id=${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        const json = await res.json();
-        showResponse(json);
-      } catch (err) {
-        showResponse({ error: err.message });
-      }
+document.getElementById('edit-user').addEventListener('click', async () => {
+  const id = document.getElementById('edit-user-id').value;
+  if (!id) return alert('Ingresa un ID');
+
+  const data = {};
+  const username = document.getElementById('edit-username').value;
+  const email = document.getElementById('edit-email').value;
+
+  if (username) data.username = username;
+  if (email) data.email = email;
+
+  if (Object.keys(data).length === 0) {
+    return alert('Completa al menos el nombre de usuario o el email para editar');
+  }
+
+  try {
+    const res = await fetch(`/api/users.php?id=${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
     });
+    const json = await res.json();
+    showResponse(json);
+  } catch (err) {
+    showResponse({ error: err.message });
+  }
+});
+
 
     // DELETE user
     document.getElementById('delete-user').addEventListener('click', async () => {

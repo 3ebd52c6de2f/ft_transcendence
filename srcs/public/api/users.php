@@ -35,7 +35,7 @@ switch ($requestMethod) {
         break ;
     case 'DELETE':
         if ($id) {
-            deleteUser($database, $bodyArray);
+            deleteUser($database, $id);
         }
         break ;
     default:
@@ -130,23 +130,67 @@ function getUserDataById($playerId, $database) {
 quieres usar una peticion de tipo GET a /users?id=(id) tendras que realizar */
 
 function editUserData($database, $playerId, $body) {
-    // editar la info de un user
+    if (!is_numeric($playerId)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'invalid user ID']);
+        return ;
+    }
+    $updatedData = [];
+    $parameters = [];
+    if (isset($body['username'])) {
+        $updatedData[] = "username = :username";
+        $parameters[':username'] = $body['username'];
+    }
+    if (isset($body['email'])) {
+        $updatedData[] = "email = :email";
+        $parameters[':email'] = $body['email'];
+    }
+    if (empty($updatedData)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'no fields to be updated']);
+        return ;
+    }
+    $query = "UPDATE users SET " . implode(', ', $updatedData) . " WHERE id = :id";
+    $preparedQuery = $database->prepare($query);
+    foreach ($parameters as $key => $value) {
+        $preparedQuery->bindValue($key, $value);
+    }
+    $preparedQuery->bindValue(':id', $playerId, SQLITE3_INTEGER);
+    $preparedQuery->execute();
+    if ($database->changes() > 0) {
+        echo json_encode(['success' => 1, 'message' => 'user updated']);
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'user not found or no changes made']);
+    }
+    return ;
 }
 
 /* funciona con peticion PATCH en users/id donde id
 es el id del usuario a cambiar, ademas, en el body de la peticion
 han de estar escritos los datos a modificar con el formato
 " username:'nuevo nombre de usuario', email: 'nuevo email' "
+
+el tema de la contra ira en security.php
 */
 
-function deleteUser($database, $body) {
-    $database->exec("DELETE FROM users WHERE id = {$userData['id']}");
-    echo json_encode(['success' => "", 'message' => 'user deleted']);
+function deleteUser($database, $playerId) {
+    if (!is_numeric($playerId)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'invalid user ID']);
+        return ;
+    }
+    $preparedQuery = $database->prepare("DELETE FROM users WHERE id = :id");
+    $preparedQuery->bindValue(':id', $playerId, SQLITE3_INTEGER);
+    $res = $preparedQuery->execute();
+    if ($database->changes() > 0) {
+        echo json_encode(['success' => 1, 'message' => 'user deleted']);
+    } else {
+        http_response_code(404);
+        echo json_encode(['error' => 'user not found or already deleted']);
+    }
     return ;
 }
-/* funciona haciendo una peticion a /users de tipo DELETE, 
-en el cuerpo de la misma tienen que estar escritos
-correctamente el nombre de usuario y la contrasenha
-en formato: "username:(nombre de usuario), password:(contrasenha)"*/
+/* funciona haciendo una peticion a /users de tipo DELETE con el id*/
 
 ?>
