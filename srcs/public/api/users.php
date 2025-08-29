@@ -14,7 +14,7 @@ $id = $_GET['id'] ?? null;
 $body = file_get_contents('php://input');
 $bodyArray = json_decode($body, true);
 // variables de la peticion
-error_log(print_r($id, true));
+// error_log(print_r($id, true));
 
 switch ($requestMethod) {
     case 'POST':
