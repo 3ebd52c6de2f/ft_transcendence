@@ -1,4 +1,4 @@
-// cosas cubiertas //
+// cosas cubiertas [provisional]//
 
 - GET sin id a users (retorna lista de usuarios)
 - GET con id a users (retorna info del user (por id))
@@ -8,13 +8,13 @@
 - POST a friend-request (enviar solicitud de amista)
 - GET a friend-request (comprobar solicitudes de amistad entrantes)
 - PATCH a friend-request con la action en el body (aceptar/declinar solicitud)
+- GET a friends (mostrar lista de amigos)
+- DELETE a friends (eliminar un amigo)
 
 // cosas por cubrir //
 
 - POST a auth/login (logear a alguien)
 - POST a auth/logout (desloggear a alguien)
-- GET a friends (mostrar lista de amigos)
-- DELETE a friends (eliminar un amigo)
 - POST a chat (enviar un mensaje)
 - GET sin id a chat (leer lista de chats)
 - GET con id a chat (leer un mensaje recibido)
