@@ -1,0 +1,58 @@
+HOLA, la gran mayoria del backend [menos login] funcionara unica y exclusivamente si en el header
+'Authorization' se encuentra el token que devuelve el login (consulta con Dani lo que sea)
+
+Por seguridad, comprobare siempre que cuando en la peticion hay ?id=x coincida con el token
+de comprobacion [por si lo que sea :D]
+
+- /api/users.php:
+
+    POST = crear un nuevo usuario
+    formato JSON = ({
+        "name": 'name',
+        "email": 'email',
+        "password": 'password'
+    });
+
+    GET = obtener la lista de todos los usuarios
+    no tiene formato JSON (body vacio)
+    
+    GET [/api/users.php?id='id'] = obtener los datos del usuario en cuestion [id]
+    no tiene formato JSON (body vacio)
+
+    PATCH [/api/users.php?id='id'] = editar los datos de un usuario
+    formato JSON = ({
+        "name": 'new_name',
+        "email": 'new_email'
+    });
+
+    DELETE [/api/users.php?id='id'] = borrar un usuario
+    no tiene formato JSON  (con el id basta)
+
+- /api/friend-request.php:
+
+    POST = enviar una solicitud de amistad
+    formato JSON = ({
+        "sender_id": 'sender_id',
+        "receiver_id": 'receiver_id'
+    });
+
+    GET [/api/friend-request.php?id='id'] = consultar solicitudes de amistad entrantes
+    no tiene JSON pues se comprueba solo con el id
+
+    PATCH = aceptar/declinar una solicitud de amistad
+    formato JSON = ({
+        "sender_id": 'sender_id',
+        "receiver_id": 'receiver_id',
+        "action": 'accept/decline'
+    });
+
+- /api/friends.php:
+
+    GET [/api/friends?id='id'] = ver la lista de amigos del id
+    no lleva body JSON ya que se consulta unicamente con el id
+
+    DELETE = eliminar a un amigo
+    formato JSON = ({
+        "user_id": 'user_id',
+        "friend_id": 'friend_id
+    })

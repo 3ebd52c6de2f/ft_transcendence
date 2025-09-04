@@ -12,6 +12,7 @@ $database = databaseConnection();
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 $requestUri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
 $id = $_GET['id'] ?? null;
+
 $body = file_get_contents('php://input');
 $bodyArray = json_decode($body, true);
 
