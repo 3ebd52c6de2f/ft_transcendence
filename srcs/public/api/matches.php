@@ -1,27 +1,11 @@
 <?php
 
-function createNewGame($database) {
-    // crear nueva partida
-}
+// GESTION DE ELO
 
-function recentGames($database, $playerId) {
-    // ver partidas recientes
-}
+function updateElo($winnerId, $loserId, $database) {} ;
 
-function reloadGame($database, $playerId) {
-    // actualizacion de la partida
-}
+function searchPlayerByElo($userId, $database) {} ;
 
-function cancelGame($database, $playerId) {
-    // cancelar partida
-}
-
-function generalRanking($database) {
-    // ranking general
-}
-
-function friendsRanking($database, $playerId) {
-    // ranking de amigos
-}
+function createTournament($userId, $database) {} ;
 
 ?>

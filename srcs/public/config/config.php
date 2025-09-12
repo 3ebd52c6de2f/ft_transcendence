@@ -14,6 +14,7 @@ function initDatabaseTables(&$database) : void {
         // formato de usuarios
         "CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
+        elo INTEGER DEFAULT 200,
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
