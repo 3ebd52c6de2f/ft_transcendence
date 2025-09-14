@@ -1,8 +1,16 @@
 HOLA, la gran mayoria del backend [menos login] funcionara unica y exclusivamente si en el header
 'Authorization' se encuentra el token que devuelve el login (consulta con Dani lo que sea)
 
+-/api/index.php retorna el estado de la base de datos
+    puede ser bien [conectao] o mal [unable to connect...]
+
 Por seguridad, comprobare siempre que cuando en la peticion hay ?id=x coincida con el token
 de comprobacion [por si lo que sea :D]
+
+- /api/auth.php:
+    - /api/auth/login => logearse
+    - /api/auth/logout => deslogearse
+    [preguntar al capo dani :D]
 
 - /api/users.php:
 
@@ -20,10 +28,14 @@ de comprobacion [por si lo que sea :D]
     no tiene formato JSON (body vacio)
 
     PATCH [/api/users.php?id='id'] = editar los datos de un usuario
-    formato JSON = ({
+    - formato JSON = ({
         "name": 'new_name',
         "email": 'new_email'
-    });
+    }); [ esto para editar el username / correo electronico]
+
+    - formato JSON = ({
+        "password": 'new_password'
+    }) [ este cambia la contrasenha de un user]
 
     DELETE [/api/users.php?id='id'] = borrar un usuario
     no tiene formato JSON  (con el id basta)
@@ -48,11 +60,36 @@ de comprobacion [por si lo que sea :D]
 
 - /api/friends.php:
 
-    GET [/api/friends?id='id'] = ver la lista de amigos del id
+    GET [/api/friends.php?id='id'] = ver la lista de amigos del id
     no lleva body JSON ya que se consulta unicamente con el id
 
     DELETE = eliminar a un amigo
     formato JSON = ({
         "user_id": 'user_id',
         "friend_id": 'friend_id
+    })
+
+- /api/ladder.php:
+
+    GET [/api/ladder.php?id='id'] = retorna el ranking de los amigos
+    del usuario solicitado
+
+    GET [/api/ladder.php] = retorna el ranking de todos los usuarios de 
+    la base de datos [global rank]
+
+- /api/matches.php:
+
+    GET [/api/matches.php?id='id'] = retorna el id del jugador con el ELO mas cercano
+    a si mismo para organizar las partidas balanceadas
+
+    GET [/api/matches.php?id='id'] (con body) = retorna el numero de jugadores pedido con un elo parecido
+    formato JSON = ({
+        "creator_id": 'creator_id',
+        "number": 'numero' // aqui va el numero de personas solicitadas para el torneo para que sea variable
+    })
+
+    POST [/api/matches.php] = actualiza el elo despues de un partido
+    formato JSON = ({
+        "winner_id": 'winnerId',
+        "loser_id": 'loserId'
     })

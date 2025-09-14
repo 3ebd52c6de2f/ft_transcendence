@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 require_once '../config/config.php';
+require_once 'utils.php';
 
 $database = databaseConnection();
 $idQuest = 1;
@@ -17,7 +18,7 @@ $body = file_get_contents('php://input');
 $bodyArray = json_decode($body, true);
 // error_log(print_r($id, true));
 
-if ($idQuest != 0) {
+if ($idQuest != 0 || checkDiff($id, $idQuest)) {
     switch ($requestMethod) {
         case 'GET':
             if ($id) {
@@ -50,6 +51,7 @@ function friendsLadderList($id, $database) {
         $data[] = $array;
     }
     echo json_encode($data, JSON_PRETTY_PRINT);
+    return ;
 }
 
 function globalLadderList($database) {

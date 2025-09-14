@@ -6,6 +6,7 @@ error_reporting(E_ALL);
 
 header('Content-Type: application/json');
 require_once '../config/config.php';
+require_once 'utils.php';
 
 $database = databaseConnection();
 $idQuest = 1;
@@ -22,7 +23,7 @@ if ($requestMethod == 'POST') {
     return ;
 }
 
-if ($idQuest != 0) {
+if ($idQuest != 0 || checkDiff($id, $idQuest)) {
     switch ($requestMethod) {
         case  'GET':
             if (!$id) {
@@ -40,6 +41,7 @@ if ($idQuest != 0) {
                 } else {
                     editUserData($database, $id, $bodyArray);
                 }
+                break ;
             }
             break ;
         case 'DELETE':
@@ -186,7 +188,18 @@ function deleteUser($database, $playerId) {
 }
 
 function editPassword($database, $playerId, $password) {
-    // cambiar la contrasenha
+    $preparedQuery = $database->prepare("INSERT INTO users (id, password_hash) VALUES (:playerId, :pass)");
+    $preparedQuery->bindValue(":playerId", $playerId);
+    $hashedPass = password_hash($password, PASSWORD_DEFAULT);
+    $preparedQuery->bindValue(":pass", $hashedPass);
+    $res = $preparedQuery->execute();
+    if (!$res) {
+        http_response_code(500); // server internal error
+        echo json_encode(['error' => 'internal server error']);
+        return ;
+    }
+    echo json_encode(['success' => 'password updated']);
+    return ;
 }
 
 ?>
