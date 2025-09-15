@@ -1,22 +1,6 @@
 <?php
 
-//desarrollo
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-header('Content-Type: application/json');
-require_once '../config/config.php';
-require_once 'utils.php';
-
-$database = databaseConnection();
-$idQuest = 1;
-// $idQuest = checkAuthentication($_SERVER['Authorization'/'HTTP_AUTHORIZATION']);
-$requestMethod = $_SERVER['REQUEST_METHOD'];
-$id = $_GET['id'] ?? null;
-$body = file_get_contents('php://input');
-$bodyArray = json_decode($body, true);
-// error_log(print_r($id, true));
+require_once 'header.php';
 
 if ($idQuest != 0 || checkDiff($id, $idQuest)) {
     switch ($requestMethod) {
@@ -71,3 +55,4 @@ function globalLadderList($database) {
 }
 
 ?>
+
