@@ -25,7 +25,6 @@ switch ($requestMethod)
     default:
         http_response_code(405);               
         echo json_encode(['error' => 'unauthorized method.']); 
-        break ;
 } 
 
 function createUser($database, $body): void 

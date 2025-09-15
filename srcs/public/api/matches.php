@@ -22,7 +22,6 @@ if ($idQuest != 0 || checkDiff($id, $idQuest))
         default:
             http_response_code(405);
             echo json_encode(['error' => 'unauthorized method.']);
-            break;
     }
 }
 else 
