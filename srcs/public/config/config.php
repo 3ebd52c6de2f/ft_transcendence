@@ -1,13 +1,13 @@
 <?php
 
-function databaseConnection(): SQLite3 {
+function databaseConnection(): SQLite3 
+{
     $dbpath = "/tmp/database.sqlite";
     $database = new SQLite3($dbpath, SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE);
     $database->exec("PRAGMA foreign_keys = ON;");
     initDatabaseTables($database);
     return $database;
 }
-// conexion a db
 
 function initDatabaseTables(&$database) : void {
     $tableSchema = [
@@ -21,13 +21,15 @@ function initDatabaseTables(&$database) : void {
         created TEXT DEFAULT CURRENT_TIMESTAMP,
         last_login TEXT );",
 
-        // formato de auth
-        "CREATE TABLE IF NOT EXISTS auth (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_id INTEGER NOT NULL,
-        token TEXT UNIQUE NOT NULL,
-        expires_at TEXT,
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);",
+		//2FA == twofa == twoFactor autentidication
+		"CREATE TABLE IF NOT EXISTS twofa_codes (
+		id INTEGER PRIMARY KEY AUTOINCREMENT, 
+		user_id INTEGER NOT NULL, 
+		token TEXT NOT NULL, 
+		created_at TEXT DEFAULT CURRENT_TIMESTAMP, 
+		time_to_expire_mins INTEGER DEFAULT 3, 
+		attempts_left INTEGER DEFAULT 3, 
+		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);",
 
         // formato de ajustes
         "CREATE TABLE IF NOT EXISTS user_settings (
@@ -93,9 +95,9 @@ function initDatabaseTables(&$database) : void {
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);"
     ];
     foreach ($tableSchema as $sql)
-{
+	{
         if (!$database->exec($sql))
-{
+		{
             echo "Error al ejecutar: $sql\n";
             echo "SQLite Error: " . $database->lastErrorMsg() . "\n";
         }
