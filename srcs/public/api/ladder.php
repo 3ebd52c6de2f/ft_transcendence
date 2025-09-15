@@ -1,8 +1,8 @@
 
 <?php
 
-require_once 'header.php';
 require_once 'utils.php';
+require_once 'header.php';
 
 $idQuest = 1;
 
@@ -37,7 +37,7 @@ function friendsLadderList($id, $database)
 		errorSend(500, 'internal server error');
 
     $data = [];
-    while ($array = $res->fetchArray(SQLITE3_ASSOc))
+    while ($array = $res->fetchArray(SQLITE3_ASSOC))
         $data[] = $array;
 
     echo json_encode($data, JSON_PRETTY_PRINT);

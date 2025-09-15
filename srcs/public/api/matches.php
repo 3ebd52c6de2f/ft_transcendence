@@ -1,7 +1,7 @@
 <?php
 
-require_once 'header.php';
 require_once 'utils.php';
+require_once 'header.php';
 
 $usersNum = $bodyArray['number'] ?? null;
 $idQuest = 1;

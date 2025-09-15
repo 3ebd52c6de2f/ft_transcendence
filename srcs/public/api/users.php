@@ -1,7 +1,7 @@
 <?php
 
-require_once 'header.php';
 require_once 'utils.php';
+require_once 'header.php';
 
 switch ($requestMethod)
 {
@@ -34,13 +34,13 @@ function createUser($database, $body): void
     if (!isset($body['username'], $body['email'], $body['password']))
 		errorSend(400, 'Bad request. Missing fields.');
 
-    $username = $body['username'];             
-    $email = $body['email'];                   
-    $password = password_hash($body['password'], PASSWORD_DEFAULT); 
+    $username = $body['username'];
+    $email = $body['email'];      
+    $password = password_hash($body['password'], PASSWORD_DEFAULT);
     $checkQuery = $database->prepare("SELECT id FROM users WHERE username = :username OR email = :email"); 
-    $checkQuery->bindValue(':username', $username); 
-    $checkQuery->bindValue(':email', $email);       
-    $result = $checkQuery->execute();               
+    $checkQuery->bindValue(':username', $username);
+    $checkQuery->bindValue(':email', $email);
+    $result = $checkQuery->execute();
     if ($result->fetchArray(SQLITE3_ASSOC))
 		errorSend(409, 'username/email used in other account');
 

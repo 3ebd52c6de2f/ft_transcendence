@@ -1,11 +1,5 @@
 <?php
 
-require_once 'utils.php';
-
-ini_set('display_errors', 1);                      // Activa mostrar errores en pantalla para este proceso PHP (útil en desarrollo).
-ini_set('display_startup_errors', 1);              // Muestra errores que ocurren al arrancar PHP o extensiones antes de ejecutar el script.
-error_reporting(E_ALL);                            // Pide a PHP que notifique todos los tipos de errores y avisos.
-
 header('Content-Type: application/json');          // Indica al navegador/cliente que la respuesta será texto en formato JSON.
 
 require_once '../config/config.php';               // Carga el archivo que tiene la función de conexión a la base de datos y la creación de tablas.
