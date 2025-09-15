@@ -10,13 +10,13 @@ if ($idQuest != 0 || checkDiff($id, $idQuest))
 {
     switch ($requestMethod)
 	{
-        case GET:
+        case 'GET':
             if ($usersNum)
                 createTournament($id, $usersNum, $database);
             else
                 searchPlayerByElo($id, $database);
             break;
-        case POST:
+        case 'POST':
             updateElo($bodyArray, $database);
             break;
         default:
@@ -35,7 +35,7 @@ function updateElo($body, $database)
 {
     $winnerId = $body['winner_id'];
     $loserId = $body['loser_id'];
-    if (!$winnerId || !$loserId || !is_numeric($winnerElo) || !is_numeric($loserId))
+    if (!$winnerId || !$loserId || !is_numeric($winnerId) || !is_numeric($loserId))
 		errorSend(400, 'bad request');
 
     $winnerElo = $database->querySingle("SELECT elo FROM users WHERE id = $winnerId");

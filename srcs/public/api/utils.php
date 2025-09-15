@@ -21,7 +21,7 @@ function checkDiff($id, $questId)
 function errorSend(int $errorCode, string $errorMsg, ?string $detailsMsg = null): void
 {
 	http_response_code($errorCode);
-    $response = ['error' => $errorStr]; //inicia response y luego le asigna su primera pareja
+    $response = ['error' => $errorMsg]; //inicia response y luego le asigna su primera pareja
 	if ($detailsMsg)
 		$response['details'] = $detailsMsg; //añade una nueva entrada al array response
 	echo json_encode($response);

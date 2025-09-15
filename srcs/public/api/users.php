@@ -27,6 +27,8 @@ switch ($requestMethod)
         echo json_encode(['error' => 'unauthorized method.']); 
 } 
 
+/* creamos un nuevo user */
+
 function createUser($database, $body): void 
 {
     if (!isset($body['username'], $body['email'], $body['password']))
@@ -39,7 +41,6 @@ function createUser($database, $body): void
     $checkQuery->bindValue(':username', $username); 
     $checkQuery->bindValue(':email', $email);       
     $result = $checkQuery->execute();               
-
     if ($result->fetchArray(SQLITE3_ASSOC))
 		errorSend(409, 'username/email used in other account');
 
@@ -86,12 +87,12 @@ function getUserDataById($playerId, $database)
     if (!is_numeric($playerId))
 		errorSend(404, 'invalid Id');
 
-    $secureQuest = $database->prepare("SELECT id, username FROM users WHERE id = :id");
-    $secureQuest->bindValue(":id", $playerId, SQLITE3_INTEGER);
-    $data = $secureQuest->execute();               
-    $arrayData = $data->fetchArray(SQLITE3_ASSOC); 
+    $secureQuery = $database->prepare("SELECT id, username FROM users WHERE id = :id");
+    $secureQuery->bindValue(":id", $playerId, SQLITE3_INTEGER);
+    $data = $secureQuery->execute();	// data es un objeto tipo SQLite3Result, es un objeto cursor, no contiene aún las filas en un formato usable.
+    $arrayData = $data->fetchArray(SQLITE3_ASSOC);	// Necesitas $data en valores PHP. SQLITE3_ASSOC dice: dame la fila como array asociativo (claves = nombres de columnas).
     if ($arrayData)
-        echo json_encode($arrayData);              
+        echo json_encode($arrayData);
 	else
 		errorSend(404, 'user not found');
     return;
@@ -104,8 +105,8 @@ function editUserData($database, $playerId, $body)
     if (!is_numeric($playerId))
 		errorSend(400, 'invalid user ID');
 
-    $updatedData = [];                               
-    $parameters = [];                                
+    $updatedData = [];
+    $parameters = []; 
     if (isset($body['username']))
 	{                  
         $updatedData[] = "username = :username";
