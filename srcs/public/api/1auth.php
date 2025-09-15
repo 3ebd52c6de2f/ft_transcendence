@@ -1,14 +1,19 @@
 <?php
 
-function loginUserAuth($database) {
+require_once 'utils.php';
+
+function loginUserAuth($database)
+{
     // login handle
 }
 
-function logoutUserAuth($database) {
+function logoutUserAuth($database)
+{
     // logout handle
 }
 
-function getUserStatus($database) {
+function getUserStatus($database)
+{
     // user status
 }
 

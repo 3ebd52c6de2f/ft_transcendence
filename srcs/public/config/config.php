@@ -92,8 +92,10 @@ function initDatabaseTables(&$database) : void {
         uploaded_at TEXT DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);"
     ];
-    foreach ($tableSchema as $sql) {
-        if (!$database->exec($sql)) {
+    foreach ($tableSchema as $sql)
+{
+        if (!$database->exec($sql))
+{
             echo "Error al ejecutar: $sql\n";
             echo "SQLite Error: " . $database->lastErrorMsg() . "\n";
         }

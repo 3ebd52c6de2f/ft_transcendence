@@ -173,7 +173,8 @@
 
   <script>
     const responseBox = document.getElementById('response');
-    function showResponse(json) {
+    function showResponse(json)
+{
       responseBox.textContent = JSON.stringify(json, null, 2);
     }
 
@@ -182,7 +183,8 @@
       try {
         const res = await fetch('/api/users.php');
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -193,7 +195,8 @@
       try {
         const res = await fetch(`/api/users.php?id=${id}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -212,7 +215,8 @@
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -233,7 +237,8 @@
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -244,7 +249,8 @@
       try {
         const res = await fetch(`/api/users.php?id=${id}`, { method: 'DELETE' });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -263,7 +269,8 @@
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -272,7 +279,8 @@
       try {
         const res = await fetch('/api/auth/logout.php', { method: 'POST' });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -291,7 +299,8 @@
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -302,13 +311,15 @@
       try {
         const res = await fetch(`/api/friend-request.php?id=${encodeURIComponent(id)}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
 
     const currentUserId = 3; // Sustituir dinámicamente en producción
-async function respondToFriendRequest(action) {
+async function respondToFriendRequest(action)
+{
   const senderId = document.getElementById('request-sender-id').value;
   if (!senderId) return alert('Ingresa el ID del remitente');
   try {
@@ -322,7 +333,8 @@ async function respondToFriendRequest(action) {
       }),
     });
     showResponse(await res.json());
-  } catch (err) {
+  } catch (err)
+{
     showResponse({ error: err.message });
   }
 }
@@ -336,7 +348,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/friends.php?user_id=${id}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -347,7 +360,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/friends.php?friend_id=${id}`, { method: 'DELETE' });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -367,7 +381,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -376,7 +391,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch('/api/chat.php');
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -387,7 +403,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/chat.php?id=${id}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -408,7 +425,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -419,7 +437,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/matches.php?id=${id}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -439,7 +458,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -450,7 +470,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/matches.php?id=${id}`, { method: 'DELETE' });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -462,7 +483,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch(`/api/ladder.php?id=${id}`);
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -471,7 +493,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch('/api/ladder.php');
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -481,7 +504,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
       try {
         const res = await fetch('/api/settings.php');
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -501,7 +525,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: JSON.stringify(data),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -519,7 +544,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: JSON.stringify({ password: newPass }),
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -534,7 +560,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
           body: formData,
         });
         showResponse(await res.json());
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
@@ -548,7 +575,8 @@ document.getElementById('decline-button').addEventListener('click', () => respon
         const blob = await res.blob();
         const url = URL.createObjectURL(blob);
         responseBox.innerHTML = `<img src="${url}" alt="Avatar usuario ${id}" style="max-width: 200px; max-height: 200px;">`;
-      } catch (err) {
+      } catch (err)
+{
         showResponse({ error: err.message });
       }
     });
