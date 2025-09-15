@@ -8,4 +8,12 @@ function segmentPath($data) {
     return $segments[$data - 1] ?? null;
 }
 
+function checkDiff($id, $questId) {
+    if (!$id)
+        return 1;
+    if ($questId === $id)
+        return 1;
+    return 0;
+}
+
 ?>

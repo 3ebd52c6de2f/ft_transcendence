@@ -1,23 +1,42 @@
 <?php
 
-require_once 'header.php';
+//desarrollo
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json');
+require_once '../config/config.php';
+require_once 'utils.php';
+$idQuest = 1;
+// $idQuest = checkAuthtentication($_SERVER('Authorization'));
+$database = databaseConnection();
+$requestMethod = $_SERVER['REQUEST_METHOD'];
+$requestUri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+$id = $_GET['id'] ?? null; // ERROR DE FORMATO CON EStO
+$body = file_get_contents('php://input');
+$bodyArray = json_decode($body, true);
 
 /*
 get a /friends retorna la lista de los amigos del usuario (en el body la id con el token)
 delete a /friends elimina un amigo (con el id en el body del usuario a eliminar)
 */
-
-switch ($requestMethod) {
-    case  'GET':
-        getFriendList($database, $id);
-        break ;
-    case 'DELETE':
-        deleteFriend($database, $bodyArray);
-        break ;
-    default:
-        http_response_code(405); // unauthorized
-        echo json_encode(['error' => 'unauthorized method.']);
-        break ;
+if ($idQuest != 0 || checkDiff($id, $idQuest)) {
+    switch ($requestMethod) {
+        case  'GET':
+            getFriendList($database, $id);
+            break ;
+        case 'DELETE':
+            deleteFriend($database, $bodyArray);
+            break ;
+        default:
+            http_response_code(405); // unauthorized
+            echo json_encode(['error' => 'unauthorized method.']);
+            break ;
+    }
+} else {
+    http_response_code(403); // prohibisao
+    echo json_encode(['error' => 'forbidden']);
 }
 
 function getFriendList($database, $id) {

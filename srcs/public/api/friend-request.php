@@ -1,6 +1,22 @@
 <?php
 
-require_once 'header.php';
+//desarrollo
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+header('Content-Type: application/json');
+require_once '../config/config.php';
+require_once 'utils.php';
+$idQuest = 1;
+// $idQuest = checkAuthentification($_SERVER['Authentication']);
+$database = databaseConnection();
+$requestMethod = $_SERVER['REQUEST_METHOD'];
+$requestUri = explode('/', trim($_SERVER['REQUEST_URI'], '/'));
+$id = $_GET['id'] ?? null;
+
+$body = file_get_contents('php://input');
+$bodyArray = json_decode($body, true);
 
 /* 
 post /friend-request = envia solicitud de amistad
@@ -8,21 +24,28 @@ get /friend-request?id=x = lista solicitudes pendientes
 post /friend-request/respond = aceptar/declinar una solicitud de amistad
 */
 
-switch ($requestMethod) {
-    case 'POST':
-        sendFriendRequest($database, $bodyArray);
-        break ;
-    case  'GET':
-        requestListById($database, $id);
-        break ;
-    case 'PATCH':
-        acceptDeclineFriendRequest($database, $bodyArray);
-        break ;
-    default:
-        http_response_code(405); // unauthorized
-        echo json_encode(['error' => 'unauthorized method.']);
-        break ;
-} 
+if ($idQuest != 0 || checkDiff($id, $idQuest)) {
+    switch ($requestMethod) {
+        case 'POST':
+            sendFriendRequest($database, $bodyArray);
+            break ;
+        case  'GET':
+            requestListById($database, $id);
+            break ;
+        case 'PATCH':
+            acceptDeclineFriendRequest($database, $bodyArray);
+            break ;
+        default:
+            http_response_code(405); // unauthorized
+            echo json_encode(['error' => 'unauthorized method.']);
+            break ;
+    } 
+} else {
+    http_response_code(403);//forbidden
+    echo json_encode(['error' => 'forbidden']);
+    return ;
+}
+
 
 function requestListById($database, $id) {
     if (!is_numeric($id)) {
@@ -43,6 +66,7 @@ function requestListById($database, $id) {
         $response[] = $row;
     }
     echo json_encode(['friend-request list' => $response]);
+    return ;
 }
 
 function acceptDeclineFriendRequest($database, $body) {
@@ -96,6 +120,7 @@ function acceptDeclineFriendRequest($database, $body) {
     } else {
         echo json_encode(['message' => 'friend request declined']);
     }
+    return ;
 }
 
 function sendFriendRequest($database, $bodyArray) {
@@ -146,6 +171,7 @@ function sendFriendRequest($database, $bodyArray) {
     }
     http_response_code(201);
     echo json_encode(['message' => 'Friend request sent']);
+    return ;
 }
 
 ?>
