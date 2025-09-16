@@ -1,6 +1,6 @@
 <?php
 
-require_once 'utils.php';
+require_once __DIR__ . '/header.php';
 
 function sendMessage($database)
 {

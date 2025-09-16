@@ -1,7 +1,6 @@
 <?php
 
-require_once 'utils.php';
-require_once 'header.php';
+require_once __DIR__ . '/header.php';
 
 switch ($requestMethod)
 {
@@ -9,7 +8,7 @@ switch ($requestMethod)
         getFriendList($database, $id);
         break ;
     case 'DELETE':
-        deleteFriend($database, $bodyArray);
+        deleteFriend($database, $body);
         break ;
     default:
 		errorSend(405, 'unauthorized method.');
@@ -86,10 +85,4 @@ function deleteFriend($database, $body)
 		errorSend(403, 'users are not friends');
 }
 
-/* FORMATO
-{
-    "user_id" : x,
-    "friend_id" : y (usuario a eliminar)
-}
-*/
 ?>

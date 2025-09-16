@@ -1,41 +1,39 @@
 <?php
 
-require_once 'utils.php';
-require_once 'header.php';
+require_once __DIR__ . '/header.php';
 
 switch ($requestMethod)
 {
     case 'POST':
-        createUser($database, $bodyArray);     
+        createUser($database, $body);
         break ;
     case 'GET':
-        if (!$id)                         
+        if (!$id)
             getUserList($database);
-		else                            
+		else
             getUserDataById($id, $database);
         break ;
     case 'PATCH':
-        if ($id)                            
-            editUserData($database, $id, $bodyArray);
+        if ($id)
+            editUserData($database, $id, $body);
         break ;
     case 'DELETE':
-        if ($id)                            
+        if ($id)
             deleteUser($database, $id);
         break ;
     default:
-        http_response_code(405);               
-        echo json_encode(['error' => 'unauthorized method.']); 
+		errorSend(405, 'unauthorized method.');
 } 
 
 /* creamos un nuevo user */
 
-function createUser($database, $body): void 
+function createUser($database, $body): void
 {
     if (!isset($body['username'], $body['email'], $body['password']))
 		errorSend(400, 'Bad request. Missing fields.');
 
     $username = $body['username'];
-    $email = $body['email'];      
+    $email = $body['email'];
     $password = password_hash($body['password'], PASSWORD_DEFAULT);
     $checkQuery = $database->prepare("SELECT id FROM users WHERE username = :username OR email = :email"); 
     $checkQuery->bindValue(':username', $username);
@@ -44,7 +42,7 @@ function createUser($database, $body): void
     if ($result->fetchArray(SQLITE3_ASSOC))
 		errorSend(409, 'username/email used in other account');
 
-    try 
+    try
 	{
         $secureQuest = $database->prepare("INSERT INTO users (username, email, password_hash) VALUES (:username, :email, :password_hash)");
         if (!$secureQuest)

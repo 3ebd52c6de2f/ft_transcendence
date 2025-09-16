@@ -1,18 +1,17 @@
 <?php
 
-require_once 'utils.php';
-require_once 'header.php';
+require_once __DIR__ . '/header.php';
 
 switch ($requestMethod) 
 {
     case 'POST':
-        sendFriendRequest($database, $bodyArray);
+        sendFriendRequest($database, $body);
         break ;
     case 'GET':
         requestListById($database, $id);
         break ;
     case 'PATCH':
-        acceptDeclineFriendRequest($database, $bodyArray);
+        acceptDeclineFriendRequest($database, $body);
         break ;
     default:
         http_response_code(405); 
@@ -94,10 +93,10 @@ function acceptDeclineFriendRequest($database, $body)
     }
 }
 
-function sendFriendRequest($database, $bodyArray)
+function sendFriendRequest($database, $body)
 {
-    $senderId = $bodyArray['sender_id'] ?? null;
-    $receiverId = $bodyArray['receiver_id'] ?? null;
+    $senderId = $body['sender_id'] ?? null;
+    $receiverId = $body['receiver_id'] ?? null;
 
     // Valida ids y evita autoreferencia.
     if (!isset($senderId, $receiverId) || $senderId == $receiverId || !is_numeric($senderId) || !is_numeric($receiverId))
