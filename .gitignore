@@ -1,3 +1,4 @@
 **/vendor/
 **/google_oauth_client.json
+**/google_token.json
 OUT.txt

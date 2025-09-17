@@ -15,4 +15,4 @@ RUN apt-get update && apt-get install -y \
 # que al ser incluido en un script le dice a PHP dónde encontrar cualquier dependencia relacionada con las librerias externas.
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-WORKDIR /var/www/htmlww
+WORKDIR /var/www/html

@@ -26,7 +26,7 @@ echo "Abre esta URL en tu navegador para autorizar la aplicación:\n\n";
 echo $authUrl . "\n\n";
 
 // 2. Pedir el código de verificación al usuario
-echo "Pega el código de autorización aquí y presiona Enter: ";
+echo "Pega el código de autorización (en el URL entre code= y &scope) aquí y presiona Enter: ";
 $authCode = trim(fgets(STDIN));
 
 // 3. Intercambiar el código de verificación por un token de acceso
