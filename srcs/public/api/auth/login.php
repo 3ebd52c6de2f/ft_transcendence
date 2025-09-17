@@ -12,6 +12,7 @@ if (!is_array($body)) // El cuerpo del HTTP request debería ser JSON que repres
 if (!isset($body['username'], $body['password']) || // username y password existen en el array que es el cuerpo de la petición
 ($body['username'] === '' || $body['password'] === '')) // no están vacíos
 	errorSend(400, 'Bad request. Missing fields');
+
 $username = $body['username'];
 $password = $body['password'];
 
@@ -32,13 +33,20 @@ if (!password_verify($password, $row['password_hash'])) // la variable 'password
 // Generamos un código númerico aleatorio de 6 cifras (rellenamos con 0s empezando por la izq)
 $two_fa_code = str_pad(random_int(0,999999), 6, '0', STR_PAD_LEFT);
 
-if (!sendMail($row['email'] , $two_fa_code))
-	errorSend(500, "Unable to send authentication mail, to:" . $row['email']);
+// Lo insertamos en la tabla correspondiente
+$stmt = $database->prepare('INSERT INTO twofa_codes (user_id, token) VALUES (:u, :t)');
+$stmt->bindValue(':u', $row['id'], SQLITE3_TEXT);
+$stmt->bindValue(':t', $two_fa_code, SQLITE3_TEXT);
+if ($stmt->execute() === false)
+	errorSend(500, 'internal server error');
 
-function sendMail(string $to, string $code): bool
-{
-	$headers = "From: no-reply@tudominio.com\r\n" . "Content-Type: text/plain; charset=UTF-8\r\n";
-	if (!mail($to, "trascendence código de autentificación", $code, $headers)) // mail(string $to, string $subject, string $message, array|string $headers = [], string $parameters = ""): bool
-		return (false);
-	return (true);
-}
+
+
+
+
+
+
+
+
+
+

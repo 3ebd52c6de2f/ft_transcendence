@@ -22,6 +22,7 @@ function initDatabaseTables(&$database) : void {
         last_login TEXT );",
 
 		//2FA == twofa == twoFactor autentidication
+		//los valores por defecto como CURRENT_TIMESTAMP se generan cuando insertamos una nueva fila en la tabla 
 		"CREATE TABLE IF NOT EXISTS twofa_codes (
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER NOT NULL, 
