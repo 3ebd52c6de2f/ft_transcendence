@@ -28,7 +28,7 @@ function initDatabaseTables(&$database) : void {
 		user_id INTEGER NOT NULL, 
 		token TEXT NOT NULL, 
 		created_at TEXT DEFAULT CURRENT_TIMESTAMP, 
-		time_to_expire_mins INTEGER DEFAULT 3, 
+		time_to_expire_mins INTEGER DEFAULT 5, 
 		attempts_left INTEGER DEFAULT 3, 
 		FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE);",
 

@@ -1,28 +1,20 @@
 <?php
-// Ubicación: srcs/public/api/auth/mail_gmail.php
 
-use Google\Client;
-use Google\Service\Gmail;
-
-// La ruta ahora sube dos niveles para llegar a la raíz de 'public'
+// Carga el autoloader de Composer => para usar las clases de Google
 require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../header.php';
 
-function gmailClient(): Client
+function gmailClient(): Google\Client
 {
-    $client = new Client();
+    $client = new Google\Client();
     $client->setApplicationName('Transcendence');
-    $client->setScopes([Gmail::GMAIL_SEND]);
-    // La ruta ahora sube dos niveles
+    $client->setScopes([Google\Service\Gmail::GMAIL_SEND]);
     $client->setAuthConfig(__DIR__ . '/../../config/google_oauth_client.json');
     $client->setAccessType('offline');
 
-    // La ruta ahora sube dos niveles
     $tokenPath = __DIR__ . '/../../config/google_token.json';
     if (!file_exists($tokenPath))
-    {
-        throw new RuntimeException('Falta google_token.json. Ejecuta el script de setup para generarlo.');
-    }
-
+		errorSend(500, 'Falta google_token.json. Ejecuta el script de setup para generarlo.');
     $accessToken = json_decode(file_get_contents($tokenPath), true);
     $client->setAccessToken($accessToken);
 
@@ -40,7 +32,7 @@ function sendMailGmailAPI(string $to, string $subject, string $textBody): bool
     try
     {
         $client = gmailClient();
-        $gmail = new Gmail($client);
+        $gmail = new Google\Service\Gmail($client);
 
         $message = "From: 'me'\r\n";
         $message .= "To: {$to}\r\n";
@@ -51,7 +43,7 @@ function sendMailGmailAPI(string $to, string $subject, string $textBody): bool
 
         $rawMessage = rtrim(strtr(base64_encode($message), '+/', '-_'), '=');
 
-        $gmailMessage = new Gmail\Message();
+        $gmailMessage = new Google\Service\Gmail\Message();
         $gmailMessage->setRaw($rawMessage);
 
         $gmail->users_messages->send('me', $gmailMessage);
