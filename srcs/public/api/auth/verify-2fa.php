@@ -31,61 +31,48 @@ if (!$row1)
 	errorSend(401, 'invalid credentials');
 
 //validamos el número de intentos, si lo hemos sobrepasado eliminamos la fila
-if ($row1['attempts_left'] > 0)
+if ($row1['attempts_left'] <= 0)
 {
-	delete_row($database, $id);	
+	delete_row($database, $id);
 	errorSend(401, 'too many invalid attempts');
-}
-
-//validamos el código del usuario
-if (!($row1['code'] === $code))
-{
-	increase_attempts($database, $id);
-	errorSend(401, 'invalid credentials');
 }
 
 //validamos los tiempos
 $currentTime = new DateTime();
-$createdAt = new DateTime($row1['created_at']);
+$createdAt = new DateTime($row1['created_at']); //el constructor de DateTime() es capaz de interpretar el formato de texto estándar de SQLite (YYYY-MM-DD HH:MM:SS)
 $diff_secs =  $currentTime->getTimestamp() - $createdAt->getTimestamp();
-if ($diff_secs < $row1['time_to_expire_mins'] * 60)
+if ($diff_secs > $row1['time_to_expire_mins'] * 60)
 {
-	increase_attempts($database, $id);
+	decrease_attempts_left($database, $id, $row1['attempts_left']);
 	errorSend(401, 'code is too old =>' . $diff_secs . ' .max time: ' . $row1['time_to_expire_mins'] * 60);
+} //getTimestamp() => devuelve el timestamp Unix: número de segundos transcurridos desde el 1 de enero de 1970 00:00:00
+
+//validamos el código del usuario
+if (!($row1['code'] === $code))
+{
+	decrease_attempts_left($database, $id, $row1['attempts_left']);
+	errorSend(401, 'invalid credentials');
 }
-//getTimestamp() => devuelve el timestamp Unix: número de segundos transcurridos desde el 1 de enero de 1970 00:00:00
 
 //creamos el JasonWebToken (JWT) 
 
 
 
-
-
-
-
-
 function delete_row(SQLite3 $database, int $id): void
 {
-	$stmt_del = $database->prepare('DELETE FROM twofa_codes WHERE id = ' . intval($id)); //intval =>  sea siempre un número entero.
-	if (!$stmt_del->execute())
+	$deleteStmt = $database->prepare('DELETE FROM twofa_codes WHERE id = :id');
+	$deleteStmt->bindValue(':id', $id);
+	if (!$deleteStmt->execute())
 		errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
 }
 
-function increase_attempts(SQLite3 $database, int $id): void
+function decrease_attempts_left(SQLite3 $database, int $id, int $attempts_left): void
 {
-	$stmt = $database->prepare('UPDATE attempts_left FROM twofa_codes WHERE id = :id');
-	$stmt->bindValue(':id', $id);
-	if ($stmt->execute())
-		errorSend(500, 'couldn`t increase_attempts on table twofa_codes');
+	$updateStmt = $database->prepare('UPDATE twofa_codes SET attempts_left = :attempts WHERE id = :id');
+	$updateStmt->bindValue(':id', $id);
+	$updateStmt->bindValue(':attempts', $attempts_left - 1);
+	if (!$updateStmt->execute())
+		errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
 }
 
-
-
-
-
-
-
-
-header('Content-Type: application/json');          // Indica al navegador/cliente que la respuesta será texto en formato JSON.
-exit;
 ?>

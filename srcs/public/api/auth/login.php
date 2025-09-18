@@ -41,31 +41,18 @@ $two_fa_code = str_pad(random_int(0,999999), 6, '0', STR_PAD_LEFT);
 
 // Lo insertamos en la tabla correspondiente
 $stmt2 = $database->prepare('INSERT INTO twofa_codes (user_id, token) VALUES (:u, :t)');
-$stmt2->bindValue(':u', $row['id'], SQLITE3_TEXT);
+$stmt2->bindValue(':u', $row['id'], SQLITE3_INTEGER);
 $stmt2->bindValue(':t', $two_fa_code, SQLITE3_TEXT);
 if ($stmt2->execute() === false)
 	errorSend(500, 'couldn`t store two_fa_code in table');
 
-//Las funciones de la API de google lanzan excepciones
-//Las funciones de bajo nivel (como esta) no generen respuestas de API => 
-//dejen que el script principal (login.php) decida qué respuesta enviar
+$id = $database->lastInsertRowID();
 
-if (sendMailGmailAPI($row['email'], $row['id'], $two_fa_code))
+if (!sendMailGmailAPI($row['email'], $row['id'], $two_fa_code))
 	errorSend(500, 'couldn\'t send mail with Gmail API');
 
-// Se ha verificado la contraseña, pero el login no está completo.
-// El frontend debe mostrar ahora la pantalla para introducir el código 2FA.
-$stmt3 = $database->prepare('SELECT id FROM twofa_codes WHERE user_id = :user_id');
-$stmt3->bindValue(':user_id', $row['id'], SQLITE3_TEXT);
-$result3 = $stmt3->execute();
-if ($result3 === false)
-	errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
-$row3 = $result3->fetchArray(SQLITE3_ASSOC);
-if ($row3)
-	errorSend(401, "Invalid credentials: " . $database->lastErrorMsg());
-
 header('Content-Type: application/json');
-echo json_encode(['pending_2fa' => true, 'id' => $row3['id']]);
+echo json_encode(['pending_2fa' => true, 'id' => $id]);
 exit;
 // header() => Es la función de PHP para enviar una cabecera HTTP sin procesar. 
 // Las cabeceras son metadatos que viajan junto con la respuesta del servidor y 
