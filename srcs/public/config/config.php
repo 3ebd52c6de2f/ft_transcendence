@@ -26,7 +26,7 @@ function initDatabaseTables(&$database) : void {
 		"CREATE TABLE IF NOT EXISTS twofa_codes (
 		id INTEGER PRIMARY KEY AUTOINCREMENT, 
 		user_id INTEGER NOT NULL, 
-		token TEXT NOT NULL, 
+		code TEXT NOT NULL, 
 		created_at TEXT DEFAULT CURRENT_TIMESTAMP, 
 		time_to_expire_mins INTEGER DEFAULT 5, 
 		attempts_left INTEGER DEFAULT 3, 

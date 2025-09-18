@@ -1,6 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../header.php';
+require_once __DIR__ . '/header_auth.php';
+require_once __DIR__ . '/gmail_api/mail_gmail.php';
+
+$database = databaseConnection();	// Abre o crea el archivo de base de datos SQLite y devuelve un objeto conexión listo para usar. tipo del objeto: SQLite3
+$requestMethod = $_SERVER['REQUEST_METHOD'];	// Lee el método HTTP dWe la petición actual (GET, POST, PATCH, DELETE).
+$bodyJSON = file_get_contents('php://input');	// Lee el cuerpo crudo de la petición HTTP (bytes). Útil para JSON enviado por el cliente.
+$body = json_decode($bodyJSON, true);	// El cuerpo del HTTP request debería ser JSON que represente un objeto. En PHP eso se traduce en un array asociativo. Si no lo es, el JSON es inválido o no tiene la estructura esperada.
 
 // Nos cercioramos de los tipos de: método, content-type y formato del cuerpo. Además de la existencia de los credenciales
 if ($requestMethod != 'POST') //comprobamos que el método sea el adecuado
@@ -16,13 +22,13 @@ if (!isset($body['username'], $body['password']) || // username y password exist
 $username = $body['username'];
 $password = $body['password'];
 
-// Preparamos una statement (stmt) para realizar un query a la tabla 'users'. necesitamos id, el hash y el mail. 
-$stmt = $database->prepare("SELECT id, password_hash, email FROM users WHERE username = :username");
-$stmt->bindValue(':username', $username);
-$result = $stmt->execute(); // Devuelve un objeto de tipo SQLite3Result, ese objeto $result es un cursor sobre las filas que devuelve la consulta. Al inicio, el cursor está antes de la primera fila. Cada vez que llamas a fetchArray(), el cursor avanza una fila. Cuando ya no hay filas → devuelve false.
-if (!$result)
+// Preparamos una statement (stmt1) para realizar un query a la tabla 'users'. necesitamos id, el hash y el mail. 
+$stmt1 = $database->prepare("SELECT id, password_hash, email FROM users WHERE username = :username");
+$stmt1->bindValue(':username', $username);
+$result1 = $stmt1->execute(); // Devuelve un objeto de tipo SQLite3Result, ese objeto $result1 es un cursor sobre las filas que devuelve la consulta. Al inicio, el cursor está antes de la primera fila. Cada vez que llamas a fetchArray(), el cursor avanza una fila. Cuando ya no hay filas → devuelve false.
+if (!$result1)
 	errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
-$row = $result->fetchArray(SQLITE3_ASSOC); // Para obtener filas concretas necesitas llamar a fetchArray() sobre $result. $row = $result->fetchArray(SQLITE3_ASSOC); SQLITE3_ASSOC => Indica que queremos la fila como array asociativo.
+$row = $result1->fetchArray(SQLITE3_ASSOC); // Para obtener filas concretas necesitas llamar a fetchArray() sobre $result. $row = $result->fetchArray(SQLITE3_ASSOC); SQLITE3_ASSOC => Indica que queremos la fila como array asociativo.
 if (!$row)
 	errorSend(401, 'invalid credentials');
 
@@ -34,19 +40,33 @@ if (!password_verify($password, $row['password_hash'])) // la variable 'password
 $two_fa_code = str_pad(random_int(0,999999), 6, '0', STR_PAD_LEFT);
 
 // Lo insertamos en la tabla correspondiente
-$stmt = $database->prepare('INSERT INTO twofa_codes (user_id, token) VALUES (:u, :t)');
-$stmt->bindValue(':u', $row['id'], SQLITE3_TEXT);
-$stmt->bindValue(':t', $two_fa_code, SQLITE3_TEXT);
-if ($stmt->execute() === false)
-	errorSend(500, 'internal server error');
+$stmt2 = $database->prepare('INSERT INTO twofa_codes (user_id, token) VALUES (:u, :t)');
+$stmt2->bindValue(':u', $row['id'], SQLITE3_TEXT);
+$stmt2->bindValue(':t', $two_fa_code, SQLITE3_TEXT);
+if ($stmt2->execute() === false)
+	errorSend(500, 'couldn`t store two_fa_code in table');
 
+//Las funciones de la API de google lanzan excepciones
+//Las funciones de bajo nivel (como esta) no generen respuestas de API => 
+//dejen que el script principal (login.php) decida qué respuesta enviar
 
+if (sendMailGmailAPI($row['email'], $row['id'], $two_fa_code))
+	errorSend(500, 'couldn\'t send mail with Gmail API');
 
+// Se ha verificado la contraseña, pero el login no está completo.
+// El frontend debe mostrar ahora la pantalla para introducir el código 2FA.
+$stmt3 = $database->prepare('SELECT id FROM twofa_codes WHERE user_id = :user_id');
+$stmt3->bindValue(':user_id', $row['id'], SQLITE3_TEXT);
+$result3 = $stmt3->execute();
+if ($result3 === false)
+	errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
+$row3 = $result3->fetchArray(SQLITE3_ASSOC);
+if ($row3)
+	errorSend(401, "Invalid credentials: " . $database->lastErrorMsg());
 
-
-
-
-
-
-
-
+header('Content-Type: application/json');
+echo json_encode(['pending_2fa' => true, 'id' => $row3['id']]);
+exit;
+// header() => Es la función de PHP para enviar una cabecera HTTP sin procesar. 
+// Las cabeceras son metadatos que viajan junto con la respuesta del servidor y 
+// le dan instrucciones al cliente sobre cómo interpretar el contenido.

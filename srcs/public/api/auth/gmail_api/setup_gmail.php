@@ -1,8 +1,7 @@
 <?php
 
-// Carga el autoloader de Composer => para usar Google\Client
+// Carga el autoloader de Composer => para que encuentre la clase Google\Client
 require_once __DIR__ . '/../../vendor/autoload.php';
-require_once __DIR__ . '/../header.php';
 
 // Ruta al archivo de credenciales descargado de Google Cloud
 $credentialsPath = __DIR__ . '/../../config/google_oauth_client.json';
@@ -10,7 +9,7 @@ $credentialsPath = __DIR__ . '/../../config/google_oauth_client.json';
 $tokenPath = __DIR__ . '/../../config/google_token.json';
 
 if (!file_exists($credentialsPath))
-	errorSend(500, 'No se encuentra el archivo de credenciales. Descárgalo de Google Cloud y guárdalo en: ' . $credentialsPath);
+	throw new Exception('No se encuentra el archivo de credenciales. Descárgalo de Google Cloud y guárdalo en: ' . $credentialsPath);
 
 $client = new Google\Client();
 $client->setApplicationName('Transcendence 2FA Setup');
@@ -33,7 +32,7 @@ $accessToken = $client->fetchAccessTokenWithAuthCode($authCode);
 
 // 4. Comprobar si hubo un error
 if (array_key_exists('error', $accessToken))
-	errorSend(500, "Error al obtener el token: " . join(', ', $accessToken));
+	throw new Exception("Error al obtener el token: " . join(', ', $accessToken));
 
 // 5. Guardar el token (incluyendo el refresh_token) en un archivo
 file_put_contents($tokenPath, json_encode($accessToken, JSON_PRETTY_PRINT));
