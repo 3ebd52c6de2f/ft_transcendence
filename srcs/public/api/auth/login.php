@@ -39,6 +39,11 @@ if (!password_verify($password, $row['password_hash'])) // la variable 'password
 // Generamos un código númerico aleatorio de 6 cifras (rellenamos con 0s empezando por la izq)
 $two_fa_code = str_pad(random_int(0,999999), 6, '0', STR_PAD_LEFT);
 
+// Eliminamos cualquier código 2FA anterior para este usuario.
+$stmt_delete = $database->prepare('DELETE FROM twofa_codes WHERE user_id = :user_id');
+$stmt_delete->bindValue(':user_id', $row['id'], SQLITE3_INTEGER);
+$stmt_delete->execute();
+
 // Lo insertamos en la tabla correspondiente
 $stmt2 = $database->prepare('INSERT INTO twofa_codes (user_id, code) VALUES (:u, :t)');
 $stmt2->bindValue(':u', $row['id'], SQLITE3_INTEGER);

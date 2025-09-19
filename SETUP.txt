@@ -1,0 +1,20 @@
+Como hacer el SETUP del server
+
+1. Crear variable de entorno en la raíz del proyecto, contiene la clave de JWT
+
+//cat .env
+//JWTsecretKey=kp@Z&v9!sWG2qB*r5u8x/A?DG+KbPeShVmYq3t6w9zC&FJ@NcQfTjWnZr4u7
+
+2. Copiar srcs/public/secrets/google_oauth_client.json
+
+//os paso el archivo por whatsapp/mail/slack
+//lo usamos para acceder a la API de gmail asociada con mi mail
+
+3. Haz => make setup y sigue las instrucciones del script
+
+//ejecutara los siguientes comandos en sucesión:
+//- docker-compose run --rm php composer install => descarga la librería con la API de google y la librería con las clases para crear el JWT => usamos el gestor de paquetes de PHP (Composer), que se descargara cualquier biblioteca + sus dependencia que le indiquemos en srcs/public/composer.json
+//- levanta los docker
+//- docker-compose exec php bash //entramos en el contenedor php
+//- php api/auth/setup_gmail.php //ejecutamos el script de setup para la API de gmail
+//- IMPORTANTE: el código que genera el script está en la URL de la página 'Unable to connect' => http://localhost/ ? code=(CÓDIGO)&scope=(permiso solicitado)

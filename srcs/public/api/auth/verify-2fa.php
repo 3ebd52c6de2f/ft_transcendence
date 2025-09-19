@@ -1,7 +1,7 @@
 <?php
 
 require_once __DIR__ . '/header_auth.php';
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $database = databaseConnection();	// Abre o crea el archivo de base de datos SQLite y devuelve un objeto conexión listo para usar. tipo del objeto: SQLite3
 $requestMethod = $_SERVER['REQUEST_METHOD'];	// Lee el método HTTP de la petición actual (GET, POST, PATCH, DELETE).
@@ -19,22 +19,22 @@ if (!isset($body['code'], $body['id']) || $body['code'] === '' || $body['id'] ==
 	errorSend(400, 'Bad request. Missing fields');	
 
 $code = $body['code'];
-$id = $body['id'];
+$user_id = $body['id'];
 
 //conseguimos el código de la línea correspondiente de la base de datos
-$stmt1 = $database->prepare('SELECT user_id, code, created_at, time_to_expire_mins, attempts_left FROM twofa_codes WHERE id = :id');
-$stmt1->bindValue(':id', $id);
+$stmt1 = $database->prepare('SELECT user_id, code, created_at, time_to_expire_mins, attempts_left FROM twofa_codes WHERE user_id = :user_id');
+$stmt1->bindValue(':user_id', $user_id);
 $result1 = $stmt1->execute();
 if (!$result1)
 	errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
 $row1 = $result1->fetchArray(SQLITE3_ASSOC);
 if (!$row1)
-	errorSend(401, 'invalid credentials');
+	errorSend(401, 'invalid credentials1');
 
 //validamos el número de intentos, si lo hemos sobrepasado eliminamos la fila
 if ($row1['attempts_left'] <= 0)
 {
-	delete_row($database, $id);
+	delete_row($database, $user_id);
 	errorSend(401, 'too many invalid attempts');
 }
 
@@ -44,15 +44,15 @@ $createdAt = new DateTime($row1['created_at']); //el constructor de DateTime() e
 $diff_secs =  $currentTime->getTimestamp() - $createdAt->getTimestamp();
 if ($diff_secs > $row1['time_to_expire_mins'] * 60)
 {
-	delete_row($database, $id);
+	delete_row($database, $user_id);
 	errorSend(401, 'code is too old =>' . $diff_secs . ' .max time: ' . $row1['time_to_expire_mins'] * 60);
 } //getTimestamp() => devuelve el timestamp Unix: número de segundos transcurridos desde el 1 de enero de 1970 00:00:00
 
 //validamos el código del usuario
 if (!hash_equals($row1['code'], $code)) //con === se puede timear el tiempo que pasa comparando ambos strings, para saber hasta que carcater son identicos, con hash_equals() no
 {
-	decrease_attempts_left($database, $id, $row1['attempts_left']);
-	errorSend(401, 'invalid credentials');
+	decrease_attempts_left($database, $user_id, $row1['attempts_left']);
+	errorSend(401, 'invalid credentials2');
 }
 
 //creamos el JasonWebToken (JWT)
@@ -70,18 +70,18 @@ header('Content-Type: application/json');
 echo json_encode(['status' => 'success', 'message' => 'Login successful.', 'token' => $jwt]);
 exit;
 
-function delete_row(SQLite3 $database, int $id): void
+function delete_row(SQLite3 $database, int $user_id): void
 {
 	$deleteStmt = $database->prepare('DELETE FROM twofa_codes WHERE id = :id');
-	$deleteStmt->bindValue(':id', $id);
+	$deleteStmt->bindValue(':id', $user_id);
 	if (!$deleteStmt->execute())
 		errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
 }
 
-function decrease_attempts_left(SQLite3 $database, int $id, int $attempts_left): void
+function decrease_attempts_left(SQLite3 $database, int $user_id, int $attempts_left): void
 {
 	$updateStmt = $database->prepare('UPDATE twofa_codes SET attempts_left = :attempts WHERE id = :id');
-	$updateStmt->bindValue(':id', $id);
+	$updateStmt->bindValue(':id', $user_id);
 	$updateStmt->bindValue(':attempts', $attempts_left - 1);
 	if (!$updateStmt->execute())
 		errorSend(500, "SQLite Error: " . $database->lastErrorMsg());
