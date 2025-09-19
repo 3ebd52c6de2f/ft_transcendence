@@ -40,7 +40,7 @@ if (!password_verify($password, $row['password_hash'])) // la variable 'password
 $two_fa_code = str_pad(random_int(0,999999), 6, '0', STR_PAD_LEFT);
 
 // Lo insertamos en la tabla correspondiente
-$stmt2 = $database->prepare('INSERT INTO twofa_codes (user_id, token) VALUES (:u, :t)');
+$stmt2 = $database->prepare('INSERT INTO twofa_codes (user_id, code) VALUES (:u, :t)');
 $stmt2->bindValue(':u', $row['id'], SQLITE3_INTEGER);
 $stmt2->bindValue(':t', $two_fa_code, SQLITE3_TEXT);
 if ($stmt2->execute() === false)

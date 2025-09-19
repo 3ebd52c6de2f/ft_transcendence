@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/header_auth.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $database = databaseConnection();	// Abre o crea el archivo de base de datos SQLite y devuelve un objeto conexión listo para usar. tipo del objeto: SQLite3
 $requestMethod = $_SERVER['REQUEST_METHOD'];	// Lee el método HTTP de la petición actual (GET, POST, PATCH, DELETE).
@@ -43,20 +44,31 @@ $createdAt = new DateTime($row1['created_at']); //el constructor de DateTime() e
 $diff_secs =  $currentTime->getTimestamp() - $createdAt->getTimestamp();
 if ($diff_secs > $row1['time_to_expire_mins'] * 60)
 {
-	decrease_attempts_left($database, $id, $row1['attempts_left']);
+	delete_row($database, $id);
 	errorSend(401, 'code is too old =>' . $diff_secs . ' .max time: ' . $row1['time_to_expire_mins'] * 60);
 } //getTimestamp() => devuelve el timestamp Unix: número de segundos transcurridos desde el 1 de enero de 1970 00:00:00
 
 //validamos el código del usuario
-if (!($row1['code'] === $code))
+if (!hash_equals($row1['code'], $code)) //con === se puede timear el tiempo que pasa comparando ambos strings, para saber hasta que carcater son identicos, con hash_equals() no
 {
 	decrease_attempts_left($database, $id, $row1['attempts_left']);
 	errorSend(401, 'invalid credentials');
 }
 
-//creamos el JasonWebToken (JWT) 
+//creamos el JasonWebToken (JWT)
+$userId = $row1['user_id'];
+$issuer = 'http://localhost:8081';
+$audience = 'http://localhost:8081';
+$issuedAt = time(); // timestamp Unix
+$expire = $issuedAt + 3600; // el token expira en 1 hora (3600 segundos)
+$payload = ['iss' => $issuer, 'aud' => $audience, 'iat' => $issuedAt, 'exp' => $expire, 'data' => ['userId' => $userId]]; // 'data' => para añadir datos personalizados
+$secretKey = getenv('JWTsecretKey'); //necesitamos getenv para leer la variable de entorno
+$jwt = Firebase\JWT\JWT::encode($payload, $secretKey, 'HS256'); // Codificamos el payload para generar el string del JWT, usando el algoritmo HS256
 
-
+//enviamos el token
+header('Content-Type: application/json');
+echo json_encode(['status' => 'success', 'message' => 'Login successful.', 'token' => $jwt]);
+exit;
 
 function delete_row(SQLite3 $database, int $id): void
 {

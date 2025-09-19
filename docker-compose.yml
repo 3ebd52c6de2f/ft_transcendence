@@ -16,3 +16,5 @@ services:
     volumes:
       - ./srcs/public:/var/www/html
       - ./srcs/database:/var/www/html/database
+    environment:
+      JWTsecretKey: ${JWTsecretKey}

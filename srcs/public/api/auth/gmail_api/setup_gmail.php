@@ -1,12 +1,12 @@
 <?php
 
 // Carga el autoloader de Composer => para que encuentre la clase Google\Client
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../../../vendor/autoload.php';
 
 // Ruta al archivo de credenciales descargado de Google Cloud
-$credentialsPath = __DIR__ . '/../../config/google_oauth_client.json';
+$credentialsPath = __DIR__ . '/../../../secrets/google_oauth_client.json';
 // Ruta donde se guardará el token de acceso/refresco
-$tokenPath = __DIR__ . '/../../config/google_token.json';
+$tokenPath = __DIR__ . '/../../../config/google_token.json';
 
 if (!file_exists($credentialsPath))
 	throw new Exception('No se encuentra el archivo de credenciales. Descárgalo de Google Cloud y guárdalo en: ' . $credentialsPath);
@@ -39,3 +39,4 @@ file_put_contents($tokenPath, json_encode($accessToken, JSON_PRETTY_PRINT));
 
 printf("¡Éxito! El token ha sido guardado en: %s\n", $tokenPath);
 printf("Ahora tu aplicación puede enviar correos.\n");
+
